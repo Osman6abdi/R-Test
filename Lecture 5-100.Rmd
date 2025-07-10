@@ -1,0 +1,355 @@
+---
+title: "Lecture6"
+output: bookdown::html_document2
+fig_caption: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Data Visualization in R
+Data visualization in R can be achieved using ether:  
+
+1.R base functions or   
+2. Functions from speciation R packages   
+
+R visualization plots can be created using different graphic devices including(type *?Devices* at the RStudio terminal to see the list of avaialble graphic devices on your system):  
+
+*  Screen device (most common, default)
+*  File device (png, jpeg, svg, pdf) 
+
+The choice of a graphic device depends on the aim of the visualization, e.g. screen device for quick charts and file device for stored and printed plots
+
+## Visualization using Base R functions 
+
+Base R provides various data visualization functions which allow us create different plots.
+
+# Pie chart
+
+```{r}
+# # source: https://data.humdata.org/group/som?ext_cod=1#dataset-filter-start
+Percentage = c(22, 22.5,	19.7,	22.4,	7.3, 5.67)
+Agegroups = c('00-04',	'05-12',	'13-17',	'18-40',	'41-59',	'60+')
+pie(Percentage, Agegroups, main = '% age groups of Banadir pop.')
+```
+
+# Bar plot
+
+```{r}
+# source: https://data.humdata.org/group/som?ext_cod=1#dataset-filter-start
+Percentage = c(22,	22.5,	19.7,	22.4,	7.3, 5.67)
+Agegroups = c('00-04',	'05-12',	'13-17',	'18-40',	'41-59',	'60+')
+col = c("red", "yellow", "blue", "green", "magenta", "gold")
+barplot(Percentage, names.arg=Agegroups, col=col, main = 'Percentage agegroups of Banadir State')
+```
+
+
+
+# Line plot
+
+```{r}
+Banadir = c(22,	22.5,	19.7,	22.4,	7.3, 5.67)
+plot(Banadir, type="b", col='blue', lwd=2, xlab = 'Age groups', ylab = 'Age group percentage',
+     pch=4, xaxt="none", main = 'Percentage age groups of Banadir population')
+axis(side=1, at=1:6, labels=Agegroups)
+```
+We *xaxt="none"* in the above `plot()` fuction the automatically generated x-axis since we are using `axis()` function to add a custom x-axis. 
+
+Multiple lines can be plotted too:
+```{r}
+# 1st line - Banadir age groups
+Banadir = c(22,	22.5,	19.7,	22.4,	7.3, 5.67)
+plot(Banadir, type="o", col="red", lwd=2, pch = 1, xlab = 'Age groups', ylab = 'Percentage pop.',
+      main = 'Banadir vs Hiran: Percentage population age groups', xaxt="none")
+
+# 2nd line - Hiran age groups
+Hiran = c(33, 18.2,	16.3,	19.7,	7.9, 4.4)
+
+lines(Hiran, type="o", col="blue", lwd=2, pch = 2)
+
+# adding legend
+legend("topright", legend=c("Banadir", "Hiran"),
+       col=c("red", "blue"), lwd=2, pch = 1:2)
+
+# adding x axis labels 
+axis(side=1, at=1:6, labels=Agegroups)
+```
+
+
+# Scatterplots
+
+Scatterplots are useful for visualizing the relationship between two variables. The example below shows the relationship between the weight of a car and its MPG (miles per gallon) value in the mtcars dataset.
+
+```{r}
+plot(x=mtcars$wt, y=mtcars$mpg, xlab="Weight (wt)", ylab="Feul consuption (mpg)",
+     main = "Relatioship b/w car's weigth and its feul consuption", col='red', pch = 5)
+```
+We can see that the greater the weight, the lower is the MPG value.
+
+
+# Histogram
+
+A histogram is built with the `hist` function in R. 
+
+The width of a bar is defined with the `breaks` argument, which can be used to control the number of bars in the plot. If `breaks` is an integer, it is a **recommended** number of "buckets", but the actual number may turn out to be different. 
+
+```{r}
+# we will use the cars dataset for this illustration 
+hist(cars$speed, main="Illustration of a histogram", xlab="Speed", breaks=10)
+```
+
+If `breaks` is a vector, it specifies the ranges of each "bucket".
+```{r}
+# summary stats of the used data
+summary(cars$speed)
+
+# define breaks such that the lower range of the first bucket is  the minimum value,
+# and the upper range of the last bucket is the maximum value,
+# the "by" argument specifies the size of the range of each bucket
+breaks = breaks = seq(min(cars$speed), max(cars$speed), by=3) 
+hist(cars$speed, main="Illustration of a histogram", xlab="Speed", breaks=breaks)
+```
+
+You can also add the *abline()* function to add horizental, vertial, or diagnol lines to your plot
+```{r}
+# recreating the histogram 
+hist(cars$speed, main="Illustration of a histogram", xlab="Speed", breaks=10)
+
+# let us add veritcal lines indicating the five number summary
+ abline(v = c(mean(cars$speed), median(cars$speed)), col = c("red", "blue"), lwd = 3)
+```
+
+# Box plots
+
+Boxplots depict how observations are distributed in a dataset. It divides the dataset into three quartiles. This graph represents the five number summary stats: minimum, maximum, median, first quartile and third quartile in the dataset. It is also useful in comparing the distribution of observations across subsets of the data by drawing boxplots for each subset.
+
+The snippet below creates a box plot that compares the distribution of the MPG (miles per gallon) values across three groups of cars corresponding to their number of cylinders.
+
+```{r}
+boxplot(mpg ~ cyl, data=mtcars, xlab="Number of Cylinders",
+   ylab="Miles Per Gallon", main = "Mileage Data", col='blue')
+```
+
+The centre line in each box shows the median, the box shows the interquartile range (the upper side of the box shows the third quartile, the lower side of the box shows the first quartile), the whiskers show the maximum and minimum values.
+
+Looking at the graph, we can say that 4-cylinder cars have a higher median MPG than 6-cylinder cars, and 6-cylinder cars have a higher median MPG than 8-cylinder cars. At least 75% of all 4-cylinder cars have a higher MPG than all 6-cylinder cars (the first quartile of 4-cylinder cars is greater than the maximum value for 6-cylinder cars). A similar observation can be made when comparing the 6- and 8-cylinder cars.
+
+
+##  Creating plots on file devices - saving
+By default, most Base R and specialist package functions create plots on the screen automatically. However, one has to follow specific steps when sending the plot to a file device:
+
+1. Create the destination file device - *required*   
+2. Call the desired plotting function   
+3. Annotate/label/caption the plot,   
+4. Close the graphic device with dev.off() - *required* 
+
+```{r}
+# Step 1 - open graphic device and create the file (working directory) 
+png(file = "stoppingdistance.png")
+# cars - R built-in data containg car speeds and distances to stop 
+
+# Step 2 - create plot and send to file (no plot to appear on screen)
+with(cars, plot(speed, dist))
+
+# Step 3 - label and caption the chart on file 
+title(main = " car speed vs distance it takes to stop") 
+
+# Step 4 - Close the png file device
+dev.off() 
+
+# Now you can view the file 'temp_vs_wind.png' in your working directory
+```
+
+## Data Visualization with ggplot2.
+The ggplot2 is tidyverse's primary data visualization package. the gg prefix in  "ggplot2" stands for Grammar of Graphics, a reference to Leland Wilkinson book whose idea the ggplot2 package implements.Unlike base R function, the ggplot2 vers operate on dataframes and tipples only. Please see this [link](https://ggplot2.tidyverse.org/index.html) for more details of the ggplot2 package features and functios. Please also use the additional reading sources given at the end of the lecture slides.
+
+The Grammer of Graphics is a concept that says we can create every graph from the same components:
+
+* `Data` - the data frame or tipple to be visualized
+* `Geometrics` - the geometric representation of the data.
+* `Aesthetics` -  the properties of the geometric object (e.g., color, size, shape)
+
+To illustrate the ggplot2 functionality, we wil use an running example by investigating the relationship between *engine size* and *fuel efficiency* of cars using variables from the `mpg` dataset. The 
+`mpg` is a dataset that comes with ggplot2 package and contains fuel consumption observations of 38 car models. We will specifically use two variables from the mpg data: 
+displ - a car's engine size, in litres.
+hwy - a car's fuel efficiency on the highway
+
+Let us start the analysis by viewing the datset structure
+```{r}
+library(dplyr)
+# viewing the mpg data structure
+glimpse(ggplot2::mpg)
+```
+
+All *ggplot2* plots are created with a call to `ggplot()`, which takes *data* and *aesthethic mappings*, specified by `aes()`. Note the *data* and *aesthethic mappings* passed to the `ggplot()` will be considered common or universal to  all subsequent layers but can be overritten in the subsequent layers. if the *data* and *aesthethic mappings* are supplied to a specific layer or geom, they will be specific to that layer/geom. 
+
+
+```{r}
+# viewing viewing the relationsship between displ and hwy
+# aes(displ, hwy) or aes(x=displ, y=hwy)
+suppressWarnings(library(ggplot2))
+ggplot(data= mpg, mapping = aes(x=displ, y=hwy)) + 
+  geom_point()
+```
+The generated plot is similar to conventional scatter plot, and shows a negative correlation between the two variables, i.e. the bigger the engine size the less the highway feul efficiency. 
+
+Next, we will add new variables to convey additional information, for example, `cyl` variable via the *colour* attribute.
+
+```{r}
+# adding a new property/variable informaiton to the plot
+ggplot(data = mpg, mapping = aes(displ, hwy, colour = cyl)) + 
+  geom_point()
+```
+Each unique *cyl* value is assigned a unique colour in the above plot. The plots shows that large engines cars ( high *displ* vales) have more cylinders in their engines and their highway fuel efficiency (hwy) tends to be less, e.g., *trucks*
+ 
+
+Let us check the unique values of the *cyl* to cross check them with the insights from the above chart.
+```{r}
+# checking cyl uniqu values 
+table (mpg$cyl)
+```
+Obviously, there a few cars in this sample data with *cyl* value of 5. 
+Some *ggplot2* aesthetics such as `shape` can only be used on a discrete or categorical variables, so we will create  a factor variable of *cyl* and use it for the  *shape* aesthetic.
+
+Let us further enrich our plot by mapping the *shape* aesthetic the *cyl* variable and *colour* to the *class* variable
+```{r}
+mpg$cyl = as.factor(mpg$cyl) # first converting the cyl variable to a factor
+ggplot(mpg, aes(displ, hwy, colour = class, shape = cyl)) + 
+  geom_point()
+```
+From the above plot, we can see that most *suv* and some of the  *pickup*, *subcompact*,  and *2seater* cars have 8-cylinder engines. While most *midsize* cars have 6-cylinders. In addition, none of the *compact* type cars seem to have 8 cylinders.
+
+
+```{r}
+# checking the cyl data type
+table(mpg$class)
+```
+The above summary shows that *suv* is the majority type of cars in this dataset followed by by *compact* and *midsize* in order.
+
+```{r}
+# checking the cyl data type
+str(mpg)
+```
+
+We can also use the same variable for different ggplot2 aesthetics. Let us now use the *cyl* for both colour and shape properties. 
+
+
+```{r}
+# using the same variable for the different properties
+ggplot(mpg, aes(displ, hwy, colour = cyl, shape=cyl)) + 
+  geom_point()
+```
+
+Another importatant aesthetic that can be use to add information/variable to a ggplot graph is the `size` attribute. Let us now use the 'mpg' variable of the mtcars dataset for the size attribute. 
+
+```{r}
+# adding the a size attribute
+library(ggplot2)
+# aes(displ, hwy) or aes(x=displ, y=hwy)
+ggplot(mtcars,aes(x=disp,y=hp,color=wt,size=mpg)) %+% 
+  geom_point()
+```
+Clearly, cars with large engines (disp) tend be heavy, have low feul efficiency (mpg) but have a high power (hp). 
+
+
+## facets
+We have seen that we can add additional variables and information to ggplot2 chart with aesthetics. Another useful way for adding additional variables, is to split your plot into facets, i.e., subplots that each display one subset of the data. A facet can be added to the ggplot using facet_wrap() function with first argument been a formula (~).  The variable that you pass to facet_wrap() needs to be a categorical or discrete.
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
+  # creating plot / mapping data 
+  geom_point(col='blue') + # representing data with points
+  facet_wrap(~ manufacturer) # faceting the plot by manufacturer var
+```
+That above plots suggest that Japanese manufactures (e.g. Nissan, Toyota, Honda) seem to produce most feul efficient cars with relavely small engines. We can cross check this insight with proportions of different manufacturers in the dataset. 
+
+```{r}
+# proportions by the manufacturer variable 
+table(mpg$manufacturer)
+```
+Dodge cars is the largest porportion in this sample data followed by Toyota and Ford cars respectively. 
+
+
+Faceting can also be done with two varables, but in this case the formula agrument (the first argument of the facet_grid()) function should contain both variable names separated by a `~` symbol.
+```{r}
+ggplot(data = mpg) + ## creating the plot 
+  geom_point(mapping = aes(x = displ, y = hwy), col='blue') + # adding data representation and mapping
+  facet_grid(drv ~ cyl) # faceting the plot by drv and cyl variables 
+```
+
+## Geometric objects
+
+We have so far used the *point()* ggplot2 geom for creating various plots. The ggplot2 package provides various other geoms including bar, line, box and smooth plots.  For example, the smooth geom is used to fit smooth trend line to a plot. Please exlore all available ggplot2 geoms using this [link](https://ggplot2.tidyverse.org/reference/) 
+
+Let us now add the smooth geom to the visualization chart that we have previously created.
+
+## smooth geom
+```{r}
+# generating with disp-hwy scatter plot with grouping by the class var.
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes(color = class)) + 
+  geom_smooth() # adding smooth fited line 
+```
+Obviously, this is a smooth curvilinear line. Note that the mapping can also be included in the geom_smooth() function. The smooth geom can be enriched with various aesthetics such as *linetype*, *group* and *color*. 
+
+```{r}
+ggplot(data = mpg) +
+  geom_smooth(mapping = aes(x = displ, y = hwy, linetype=drv))
+              
+ggplot(data = mpg) +
+  geom_smooth(mapping = aes(x = displ, y = hwy, group = drv))
+    
+ggplot(data = mpg) +
+  geom_smooth(mapping = aes(x = displ, y = hwy, color = drv))
+```
+All the above plots produce a different fitted smooth line (be that in color, type, or group) for each type of car (drv - drive trian,  f = front-wheel drive, r = rear wheel drive, 4 = 4wd).
+
+### Annotating ggplot2 graphics
+Exploratory graphs are used to understand the data, its characteristcs, correlations, and anomalies. Many of such explatory graphs will be discarded later. Onces one finishes the data exploration and select some final visualization plots for communication, one will need to annotate and label such selected graphs properly. Plot annotations or labels include, x, y labels, captions and figure numbering (if needed). The ggplot2 packages provides various functions for annotating visuals, e.g. using: `labs()`, `xlab()`, `ylab()`, `ggtitle()`  functions. ggplot2 package also provides advanced functions for adding text labels to plots, e.g., `geom_text()`.
+
+```{r}
+ggplot(data = mpg) +
+  geom_smooth(mapping = aes(x = displ, y = hwy, color = drv)) +
+  labs(x = "Car's engine size (in litres)", y = "Car's fuel efficiency on the highway",
+       title = "Relationship b/w car's feul efficiency and its engine size", color='drivetrain type')
+```
+
+as stated previoiusly, the *ggplot2* can be used to generate a rang of visualization charts including *box plots*, *bar charts*, *line charts*, etc.Please see the list of all avaiable ggplot2 *chart types* and *geoms* [here](https://ggplot2.tidyverse.org/reference/)
+
+Let us now generate a bar plot the number of cars in each type using the *class* variable. We will also visualize the different drive trains in each type usinf the *drv* variable for the *fill* property. 
+```{r}
+ggplot(data = mpg) + 
+  geom_bar(mapping = aes(x = class, fill = drv)) +
+  xlab('Type of cars') + ylab('Number of cars')
+```
+
+## coord_flip()
+ggplot provides a useful function, *coord_flip()*, for swtiching the coordinates of a visualization chart. For example, we generate a horizental version of the above bar chart. 
+```{r}
+ggplot(data = mpg) + 
+  geom_bar(mapping = aes(x = class, fill = drv)) +
+  xlab('Type of cars') + ylab('Number of cars') +
+  coord_flip() # flipping/switching the x/y cordinates
+```
+
+## 'ggsave()'
+When you finalize your data exploration, select your final charts and annotate, you can save them. ggplot2 provides a convenient way of saving the most recent version of the plot  *ggsave()* and knitr
+
+```{r}
+ggsave("final-plot.png", width=5, height=3)
+```
+
+## Acknowledgement
+Portions of the materials in this lecture slides are derived from Rstudio's open source education materials: 
+https://education.rstudio.com/teach/materials/
+https://r4ds.had.co.nz/index.html  
+https://datasciencebox.org/index.html
+https://bookdown.org/rdpeng/exdata/
+
+## Rerences
+* R for Data Science, Garrett Grolemund and Hadley Wickham, 2020. Available online at: https://r4ds.had.co.nz/index.html  
+* Exploratory Data Analysis with R, R Peng. 2020. Available online at: https://bookdown.org/rdpeng/exdata/
+
+
+
